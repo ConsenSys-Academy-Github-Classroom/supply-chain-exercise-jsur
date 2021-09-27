@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.5.16 <0.9.0;
+pragma solidity >=0.6.2 <0.9.0;
 
 contract SupplyChain {
 
@@ -53,9 +53,8 @@ contract SupplyChain {
     _;
     uint _price = items[_sku].price;
     uint amountToRefund = msg.value - _price;
-    (bool success, ) = items[_sku].buyer.call.value(amountToRefund)("");
+    (bool success, ) = items[_sku].buyer.call{ value: amountToRefund }("");
     require(success, "Refund failed.");
-    // items[_sku].buyer.transfer(amountToRefund);
   }
 
   // For each of the following modifiers, use what you learned about modifiers
@@ -95,7 +94,7 @@ contract SupplyChain {
 
   constructor() public {
     // 1. Set the owner to the transaction sender
-    owner = msg.sender;
+    owner = payable(msg.sender);
     // 2. Initialize the sku count to 0. Question, is this necessary?
     // Answer: No, as initial value for uint is 0.
   }
@@ -112,8 +111,8 @@ contract SupplyChain {
       sku: skuCount,
       price: _price,
       state: State.ForSale,
-      seller: msg.sender,
-      buyer: address(0)
+      seller: payable(msg.sender),
+      buyer: payable(address(0))
     });
     
     skuCount = skuCount + 1;
@@ -139,9 +138,9 @@ contract SupplyChain {
     paidEnough(msg.value)
     checkValue(_sku)
   {
-    (bool success, ) = items[_sku].seller.call.value(msg.value)("");
+    (bool success, ) = items[_sku].seller.call{ value: msg.value }("");
     require(success, "Transfer failed.");
-    items[_sku].buyer = msg.sender;
+    items[_sku].buyer = payable(msg.sender);
     items[_sku].state = State.Sold;
     emit LogSold(_sku);
   }
