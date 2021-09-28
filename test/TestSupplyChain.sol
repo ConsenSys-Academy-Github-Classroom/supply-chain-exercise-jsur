@@ -7,22 +7,35 @@ import "../contracts/SupplyChain.sol";
 
 contract TestSupplyChain {
 
+    address a = DeployedAddresses.SupplyChain();
+    bool success;
+    SupplyChain sc;
+
+    function beforeEach() public {
+        sc = SupplyChain(a);
+        sc.addItem("first", 100);
+        sc.addItem("second", 100);
+    }
+
     // Test for failing conditions in this contracts:
     // https://truffleframework.com/tutorials/testing-for-throws-in-solidity-tests
 
-    // buyItem
+    function testBuyItem() public {
+        // buyItem
 
-    // test for failure if user does not send enough funds
-    // test for purchasing an item that is not for Sale
+        // test for failure if user does not send enough funds
+        (success, ) = address(a).call{ value: 40 }(abi.encodePacked(sc.buyItem.selector));
+        Assert.isFalse(success, "Should throw when not enough funds are sent");
+        // test for purchasing an item that is not for Sale
 
-    // shipItem
+        // shipItem
 
-    // test for calls that are made by not the seller
-    // test for trying to ship an item that is not marked Sold
+        // test for calls that are made by not the seller
+        // test for trying to ship an item that is not marked Sold
 
-    // receiveItem
+        // receiveItem
 
-    // test calling the function from an address that is not the buyer
-    // test calling the function on an item not marked Shipped
-
+        // test calling the function from an address that is not the buyer
+        // test calling the function on an item not marked Shipped
+    }
 }
