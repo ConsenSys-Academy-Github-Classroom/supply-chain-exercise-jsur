@@ -5,5 +5,14 @@ module.exports = {
       port: 8545,
       network_id: "*" // Match any network id
     }
+  },
+  compilers: {
+    solc: {
+      version: "^0.6.2",
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    }
   }
 };
