@@ -130,6 +130,7 @@ contract SupplyChain {
   function buyItem(uint _sku)
     public
     payable
+    lockable
     forSale(_sku)
     paidEnough(items[_sku].price)
     checkValue(_sku)
