@@ -133,14 +133,12 @@ contract SupplyChain {
     forSale(_sku)
     paidEnough(items[_sku].price)
     checkValue(_sku)
-    returns (bool)
   {
     (bool success, ) = items[_sku].seller.call{ value: items[_sku].price }("");
     require(success, "Transfer failed.");
     items[_sku].buyer = payable(msg.sender);
     items[_sku].state = State.Sold;
     emit LogSold(_sku);
-    return true;
   }
 
   // 1. Add modifiers to check:
