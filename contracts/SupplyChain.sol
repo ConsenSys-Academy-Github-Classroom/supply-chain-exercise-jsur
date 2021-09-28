@@ -9,10 +9,6 @@ contract SupplyChain {
   event LogShipped(uint sku);
   event LogReceived(uint sku);
 
-  event LogBytes(bytes bts);
-  event LogUint(uint u);
-  event LogAddress(address a);
-
   // Variables
   enum State{ ForSale, Sold, Shipped, Received }
 
@@ -135,10 +131,10 @@ contract SupplyChain {
     public
     payable
     forSale(_sku)
-    paidEnough(msg.value)
+    paidEnough(items[_sku].price)
     checkValue(_sku)
   {
-    (bool success, ) = items[_sku].seller.call{ value: msg.value }("");
+    (bool success, ) = items[_sku].seller.call{ value: items[_sku].price }("");
     require(success, "Transfer failed.");
     items[_sku].buyer = payable(msg.sender);
     items[_sku].state = State.Sold;
@@ -150,14 +146,28 @@ contract SupplyChain {
   //    - the person calling this function is the seller. 
   // 2. Change the state of the item to shipped. 
   // 3. call the event associated with this function!
-  function shipItem(uint sku) public {}
+  function shipItem(uint _sku)
+    public
+    sold(_sku)
+    verifyCaller(items[_sku].seller)
+  {
+    items[_sku].state = State.Shipped;
+    emit LogShipped(_sku);
+  }
 
   // 1. Add modifiers to check 
   //    - the item is shipped already 
   //    - the person calling this function is the buyer. 
   // 2. Change the state of the item to received. 
   // 3. Call the event associated with this function!
-  function receiveItem(uint sku) public {}
+  function receiveItem(uint _sku)
+    public
+    shipped(_sku)
+    verifyCaller(items[_sku].buyer)
+  {
+    items[_sku].state = State.Received;
+    emit LogReceived(_sku);
+  }
 
   // Uncomment the following code block. it is needed to run tests
   function fetchItem(uint _sku) public view 
